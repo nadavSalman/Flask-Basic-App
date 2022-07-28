@@ -2,6 +2,7 @@
 from flask import Flask
 from markupsafe import escape
 from flask import url_for
+from flask import render_template
 
 
 #
@@ -64,11 +65,28 @@ def login():
 def login_get():
     return 'POST to end point : /login2'
 
+
+'''
+curl --location --request POST 'http://127.0.0.1:5000/login2' \
+--header 'Content-Type: application/json'
+'''
 @app.post('/login2')
 def login_post():
     return 'GET to end point : /login2'
 
 
+
+# Static Files
+with app.app_context(), app.test_request_context():
+    url_for('static', filename='main.css')
+
+
+# Rendering Templates 
+# Flask will look for templates in the templates folder
+@app.route('/hello/')
+@app.route('/hello/<name>')
+def hello(name=None):
+    return render_template('hello.html', name=name)
 
 
 if __name__ == '__main__':
