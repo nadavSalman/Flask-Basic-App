@@ -1,4 +1,4 @@
-#!/usr/local/bin/bash
+#!/bin/bash
 
 # If FLASK_APP is not set, the command will try to import “app” or “wsgi” (as a “.py” file, or package)
 # export FLASK_APP=app

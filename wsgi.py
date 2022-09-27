@@ -1,6 +1,10 @@
 # First we imported the Flask class. An instance of this class will be our WSGI application.
-from flask import Flask, url_for, render_template, request
+from flask import Flask, url_for, render_template, request ,abort, redirect
 from markupsafe import escape
+import random
+import pycountry
+from flask import after_this_request
+
 # from flask import url_for
 # from flask import render_template
 # from flask import request
@@ -130,6 +134,70 @@ def valid_login(user_name, password):
     # --data-urlencode 'username=babun' \
     # --data-urlencode 'password=123'
 
+
+
+#Cookies
+'''
+
+If you want to use sessions, do not use the cookies directly but instead use the Sessions in Flask that add some security on top of cookies for you.
+
+
+Question :
+ what is cookies : 
+Answear :
+ Cookies are key/value pairs used by websites to store state information on the browser.
+ Say you have a website (example.com), when the browser requests a webpage the website can send cookies to store information on the browser
+
+ Browser request example:
+
+GET /index.html HTTP/1.1
+Host: www.example.com
+Example answer from the server:
+
+HTTP/1.1 200 OK
+Content-type: text/html
+Set-Cookie: foo=10
+Set-Cookie: bar=20; Expires=Fri, 30 Sep 2011 11:48:00 GMT
+... rest  of the response
+Here two cookies foo=10 and bar=20 are stored on the browser. The second one will expire on 30 September. In each subsequent request the browser will send the cookies back to the server.
+
+GET /spec.html HTTP/1.1
+Host: www.example.com
+Cookie: foo=10; bar=20
+Accept: */*
+
+
+SESSIONS: Server side cookies
+Server side cookies are known as "sessions". The website in this case stores a single cookie on the browser containing a unique Session Identifier. Status information (foo=10 and bar=20 above) are stored on the server and the Session Identifier is used to match the request with the data stored on the server.
+'''
+# Eaxmple :
+
+languages = [country.name for country in pycountry.countries]
+@app.before_request
+def detect_user_language():
+    language = request.cookies.get('country')
+    if language is None:
+        language_random_index = random.randint(0,len(languages) - 1)
+
+        @after_this_request
+        def remember_language(response):
+            response.set_cookie('country', languages[language_random_index])
+            return response
+
+@app.route('/my-cookies', methods=['GET'])
+def coocies_end_point():
+    country = request.cookies.get('country')
+    return {
+            "massage": f"testing cookies {country}",
+        }, 200
+
+
+
+# Redirects and Errors
+@app.route('/kuku1')
+def index():
+    #   abort(401)
+    return redirect(url_for('coocies_end_point'))
 
 if __name__ == '__main__':
     app.run()
